@@ -19,14 +19,30 @@
       box-sizing: border-box;
     }
 
+    html {
+      min-height: 100%;
+      background-color: var(--bg);
+    }
+
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: "SF Pro Text", "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .background-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
       background:
         radial-gradient(circle at top left, rgba(29, 107, 87, 0.08), transparent 32%),
         linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
-      color: var(--text);
-      line-height: 1.7;
+      background-color: var(--bg);
     }
 
     .page {
@@ -75,16 +91,38 @@
     }
 
     .lang-nav {
-      display: flex;
-      gap: 12px;
+      display: inline-flex;
+      gap: 6px;
       margin-bottom: 28px;
       flex-wrap: wrap;
+      padding: 6px;
+      border: 1px solid rgba(29, 107, 87, 0.14);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
     }
 
-    .lang-nav a {
+    .lang-button {
+      border: 0;
+      background: transparent;
       color: var(--accent);
-      text-decoration: none;
+      border-radius: 999px;
+      padding: 10px 16px;
       font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .lang-button.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(29, 107, 87, 0.18);
+    }
+
+    .lang-button:focus-visible {
+      outline: 2px solid rgba(29, 107, 87, 0.35);
+      outline-offset: 2px;
     }
 
     h2 {
@@ -115,6 +153,10 @@
       padding-top: 10px;
     }
 
+    .section[hidden] {
+      display: none;
+    }
+
     .divider {
       height: 1px;
       background: var(--line);
@@ -122,9 +164,56 @@
     }
 
     footer {
-      margin-top: 28px;
+      margin-top: 36px;
       color: var(--muted);
       font-size: 14px;
+    }
+
+    .site-footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .footer-copy {
+      margin: 0;
+      color: var(--muted);
+      max-width: 42ch;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .footer-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-meta {
+      color: var(--muted);
+      font-size: 13px;
     }
 
     @media (max-width: 640px) {
@@ -136,25 +225,33 @@
         padding: 20px;
         border-radius: 18px;
       }
+
+      .site-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-links {
+        justify-self: start;
+        text-align: left;
+      }
     }
   </style>
 </head>
-<body>
+<body id="top">
+  <div class="background-layer" aria-hidden="true"></div>
   <main class="page">
     <header class="hero">
       <div class="eyebrow">BillLog</div>
       <h1>Privacy Policy</h1>
-      <p class="updated">Last updated: 2026-03-07</p>
     </header>
 
     <section class="card">
       <nav class="lang-nav" aria-label="Language navigation">
-        <a href="#en">English</a>
-        <a href="#zh">中文</a>
+        <button class="lang-button active" type="button" data-lang-button="en" aria-pressed="true">English</button>
+        <button class="lang-button" type="button" data-lang-button="zh" aria-pressed="false">中文</button>
       </nav>
 
       <section id="en" class="section" lang="en">
-        <h2>English</h2>
         <p>BillLog ("the App", "we", "our") is a personal bookkeeping application. This Privacy Policy explains what data the App may access, how the data is used, and what choices you have.</p>
 
         <h3>1. Data you create in the App</h3>
@@ -236,14 +333,13 @@
         <h3>12. Contact</h3>
         <p>If you have questions about this Privacy Policy, you can contact:</p>
         <ul>
-          <li>Email: onnt1997@outlook.com</li>
+          <li><a class="footer-link" href="mailto:onnt1997@outlook.com?subject=BillLog%20Privacy%20Policy">Contact</a></li>
         </ul>
       </section>
 
-      <div class="divider" role="presentation"></div>
+      <div class="divider" role="presentation" hidden></div>
 
-      <section id="zh" class="section" lang="zh-CN">
-        <h2>中文</h2>
+      <section id="zh" class="section" lang="zh-CN" hidden>
         <p>BillLog（以下简称“本应用”）是一款个人记账应用。本隐私政策说明本应用可能访问哪些数据、这些数据如何被使用，以及你可以如何管理相关权限与数据。</p>
 
         <h3>1. 你在应用中创建的数据</h3>
@@ -321,18 +417,74 @@
 
         <h3>11. 政策更新</h3>
         <p>我们可能会不时更新本隐私政策。如有重大变更，我们会更新本文顶部的“最后更新”日期。</p>
-
-        <h3>12. 联系方式</h3>
-        <p>如果你对本隐私政策有任何问题，可以通过以下方式联系：</p>
-        <ul>
-          <li>邮箱：onnt1997@outlook.com</li>
-        </ul>
       </section>
 
-      <footer>
-        This page is intended for App Store listing and public hosting.
+      <footer class="site-footer">
+        <div class="footer-brand">
+          <div class="footer-title">BillLog</div>
+          <p class="footer-copy">A bill-centric bookkeeping app focused on fast entry, clear records, and privacy-first data ownership.</p>
+          <div class="footer-meta">Privacy Policy page for App Store listing and public hosting.</div>
+        </div>
+
+        <div class="footer-links">
+          <a class="footer-link" href="mailto:onnt1997@outlook.com">Contact</a>
+          <a class="footer-link" href="#top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;">Back to top</a>
+          <div class="footer-meta">Last updated: 2026-03-07</div>
+        </div>
       </footer>
     </section>
   </main>
+  <script>
+    const storageKey = "billlog-privacy-policy-language";
+    const buttons = document.querySelectorAll("[data-lang-button]");
+    const sections = {
+      en: document.getElementById("en"),
+      zh: document.getElementById("zh")
+    };
+    const divider = document.querySelector(".divider");
+
+    function setLanguage(lang) {
+      Object.entries(sections).forEach(([key, section]) => {
+        section.hidden = key !== lang;
+      });
+
+      buttons.forEach((button) => {
+        const active = button.dataset.langButton === lang;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+
+      divider.hidden = true;
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      try {
+        window.localStorage.setItem(storageKey, lang);
+      } catch (error) {
+        void error;
+      }
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.langButton));
+    });
+
+    function detectInitialLanguage() {
+      try {
+        const stored = window.localStorage.getItem(storageKey);
+        if (stored === "en" || stored === "zh") {
+          return stored;
+        }
+      } catch (error) {
+        void error;
+      }
+
+      const browserLanguage = (navigator.language || "").toLowerCase();
+      if (browserLanguage.startsWith("zh")) {
+        return "zh";
+      }
+      return "en";
+    }
+
+    setLanguage(detectInitialLanguage());
+  </script>
 </body>
 </html>
