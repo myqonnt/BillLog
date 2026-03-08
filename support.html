@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BillLog Support</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --card: #fffdf8;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #1d6b57;
+      --accent-soft: rgba(29, 107, 87, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background-color: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "SF Pro Text", "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .background-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at top left, rgba(29, 107, 87, 0.08), transparent 32%),
+        linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
+      background-color: var(--bg);
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border: 1px solid rgba(29, 107, 87, 0.18);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.1;
+    }
+
+    .hero-copy {
+      margin: 0;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .card {
+      background: rgba(255, 253, 248, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(68, 57, 38, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .lang-nav {
+      display: inline-flex;
+      gap: 6px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      padding: 6px;
+      border: 1px solid rgba(29, 107, 87, 0.14);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .lang-button {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .lang-button.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(29, 107, 87, 0.18);
+    }
+
+    .lang-button:focus-visible {
+      outline: 2px solid rgba(29, 107, 87, 0.35);
+      outline-offset: 2px;
+    }
+
+    .section[hidden] {
+      display: none;
+    }
+
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .support-box {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 253, 248, 0.92));
+    }
+
+    .support-box h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .support-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .contact-panel {
+      padding: 22px;
+      margin-bottom: 28px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(29, 107, 87, 0.12), rgba(255, 255, 255, 0.8));
+      border: 1px solid rgba(29, 107, 87, 0.18);
+    }
+
+    .contact-panel h2,
+    .faq h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 28px;
+    }
+
+    .contact-panel p,
+    .faq p,
+    .faq li,
+    .footer-copy {
+      margin: 0 0 12px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pill-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 10px 24px rgba(29, 107, 87, 0.16);
+    }
+
+    .pill-link.secondary {
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--accent);
+      border: 1px solid rgba(29, 107, 87, 0.18);
+      box-shadow: none;
+    }
+
+    .faq {
+      margin-top: 6px;
+    }
+
+    .faq-group + .faq-group {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .faq h3 {
+      margin: 0 0 8px;
+      font-size: 19px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 0 0 12px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .note {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .site-footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .footer-copy {
+      color: var(--muted);
+      max-width: 42ch;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .footer-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 28px 14px 56px;
+      }
+
+      .card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .support-grid,
+      .site-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-links {
+        justify-self: start;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <div class="background-layer" aria-hidden="true"></div>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">BillLog</div>
+      <h1>Support</h1>
+      <p class="hero-copy">Help for billing records, itemized expenses, tags, boards, iCloud sync, Web Server access, subscription, and privacy-first data management.</p>
+    </header>
+
+    <section class="card">
+      <nav class="lang-nav" aria-label="Language navigation">
+        <button class="lang-button active" type="button" data-lang-button="en" aria-pressed="true">English</button>
+        <button class="lang-button" type="button" data-lang-button="zh" aria-pressed="false">中文</button>
+      </nav>
+
+      <section id="en" class="section" lang="en">
+        <div class="support-grid">
+          <article class="support-box">
+            <h2>What BillLog is for</h2>
+            <p>BillLog is a bill-centric bookkeeping app built for receipts, item-level entries, discount allocation, tags, boards, and dashboards.</p>
+          </article>
+          <article class="support-box">
+            <h2>Where your data lives</h2>
+            <p>Your records are primarily stored on your device. iCloud sync and local network Web Server access are optional features you control.</p>
+          </article>
+        </div>
+
+        <section class="contact-panel">
+          <h2>Contact Support</h2>
+          <p>If you need help, include your device model, iOS version, app version, and a short description of the issue. If the problem involves sync, subscription, or Web Server access, also include the exact error message or screenshot.</p>
+          <div class="contact-links">
+            <a class="pill-link" href="mailto:onnt1997@outlook.com?subject=BillLog%20Support">Email Support</a>
+            <a class="pill-link secondary" href="privacy-policy.html">Privacy Policy</a>
+          </div>
+        </section>
+
+        <section class="faq">
+          <h2>Common Help Topics</h2>
+
+          <div class="faq-group">
+            <h3>Recording bills and income</h3>
+            <p>BillLog is designed around real receipts rather than only total amounts.</p>
+            <ul>
+              <li>Add bills and income records separately so your ledger stays clear.</li>
+              <li>For a single receipt, you can split the bill into item-level details.</li>
+              <li>Discounts can be distributed across items automatically to keep totals consistent.</li>
+              <li>Categories, tags, notes, and optional location data can be attached to improve reporting.</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>Tags, boards, and dashboards</h3>
+            <p>BillLog has two different analysis layers:</p>
+            <ul>
+              <li>Boards focus on tag-based views for specific projects, trips, or themes.</li>
+              <li>Dashboard charts summarize spending and income trends over time.</li>
+              <li>If a chart is empty, first check the selected date range, bill type, and whether matching tags exist.</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>iCloud sync issues</h3>
+            <ul>
+              <li>Make sure iCloud is signed in on the device and available for this app.</li>
+              <li>Check network connectivity and available iCloud storage.</li>
+              <li>Sync is optional. If it is disabled, your data remains local unless you export it.</li>
+              <li>If sync seems stuck, re-open the app and review the iCloud status in Settings.</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>Web Server access</h3>
+            <ul>
+              <li>The built-in Web Server is intended for devices on the same local network.</li>
+              <li>You need to enable the feature in Settings and use the address and port shown by the app.</li>
+              <li>If the page cannot be opened, confirm that your phone and browser device are on the same Wi-Fi and that local network permission is allowed.</li>
+              <li>This feature may require an active subscription depending on your access status.</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>Subscription and premium access</h3>
+            <ul>
+              <li>Subscriptions are managed through Apple App Store billing.</li>
+              <li>Boards and Web Server capabilities may depend on your subscription tier or current access state.</li>
+              <li>If your purchase is not reflected, try restoring purchases and allow the app time to verify status with the App Store.</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>Privacy, Face ID, export, and deletion</h3>
+            <ul>
+              <li>Face ID can be enabled to protect access when opening the app.</li>
+              <li>You can export your data for backup or migration.</li>
+              <li>You can delete records directly in the app at any time.</li>
+              <li>For full data handling details, review the Privacy Policy.</li>
+            </ul>
+            <p class="note">When contacting support, do not send full financial records unless it is necessary for debugging. Redacted screenshots are preferred.</p>
+          </div>
+        </section>
+      </section>
+
+      <section id="zh" class="section" lang="zh-CN" hidden>
+        <div class="support-grid">
+          <article class="support-box">
+            <h2>BillLog 能做什么</h2>
+            <p>BillLog 是一款以账单为中心的记账应用，适合记录真实小票、明细项、折扣分摊、标签分析、看板和统计图表。</p>
+          </article>
+          <article class="support-box">
+            <h2>你的数据在哪里</h2>
+            <p>你的记录主要保存在本机设备中。iCloud 同步和局域网 Web 服务都是可选功能，由你主动开启和管理。</p>
+          </article>
+        </div>
+
+        <section class="faq">
+          <h2>常见支持主题</h2>
+
+          <div class="faq-group">
+            <h3>账单与收入记录</h3>
+            <p>BillLog 的设计重点不是只记总额，而是尽量还原真实账单结构。</p>
+            <ul>
+              <li>支出账单和收入记录分开管理，账目更清晰。</li>
+              <li>同一张小票可以拆分成多个明细项逐条记录。</li>
+              <li>折扣可按明细自动分摊，保证合计金额一致。</li>
+              <li>你还可以为记录补充分类、标签、备注和可选位置信息，方便后续分析。</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>标签、看板与统计</h3>
+            <p>BillLog 里有两层不同的分析方式：</p>
+            <ul>
+              <li>看板更适合围绕标签查看某个项目、旅行或主题的开销。</li>
+              <li>统计页更适合观察整体收入与支出趋势。</li>
+              <li>如果图表为空，请先检查日期范围、账单类型以及是否存在匹配标签。</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>iCloud 同步问题</h3>
+            <ul>
+              <li>请确认设备已登录 iCloud，并且本应用可用 iCloud。</li>
+              <li>检查网络连接和 iCloud 可用存储空间。</li>
+              <li>同步属于可选功能；如果未开启，你的数据会继续保留在本地，除非你主动导出。</li>
+              <li>如果同步看起来卡住了，可以重新打开应用，并在设置中查看 iCloud 状态。</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>Web 服务访问问题</h3>
+            <ul>
+              <li>内置 Web 服务主要面向同一局域网内的设备访问。</li>
+              <li>你需要先在设置中启用该功能，并使用应用显示的地址和端口访问。</li>
+              <li>如果页面打不开，请确认手机和浏览器所在设备连接的是同一个 Wi‑Fi，并且已授予本地网络权限。</li>
+              <li>该功能可能需要有效订阅才能使用，具体以你当前的访问状态为准。</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>订阅与高级功能</h3>
+            <ul>
+              <li>订阅通过 Apple App Store 完成扣费和管理。</li>
+              <li>看板数量和 Web 服务能力可能受当前订阅状态影响。</li>
+              <li>如果购买后功能没有立即生效，可以尝试恢复购买，并等待应用与 App Store 完成状态校验。</li>
+            </ul>
+          </div>
+
+          <div class="faq-group">
+            <h3>隐私、Face ID、导出与删除</h3>
+            <ul>
+              <li>你可以开启 Face ID，在打开应用时保护访问安全。</li>
+              <li>你可以导出数据用于备份或迁移。</li>
+              <li>你可以随时在应用中删除记录。</li>
+              <li>如需了解更完整的数据处理说明，请查看隐私政策页面。</li>
+            </ul>
+          </div>
+        </section>
+      </section>
+
+      <section class="contact-panel">
+        <h2>联系支持</h2>
+        <p>如果你需要帮助，请尽量提供设备型号、iOS 版本、App 版本，以及问题的简要描述。如果问题与同步、订阅或 Web 服务有关，也请附上具体报错信息或截图。</p>
+        <p class="note">联系支持时，除非排查问题必须，不建议直接发送完整财务记录。优先使用已打码的截图。</p>
+        <div class="contact-links">
+          <a class="pill-link" href="mailto:onnt1997@outlook.com?subject=BillLog%20Support">邮件联系</a>
+          <a class="pill-link secondary" href="privacy-policy.html">隐私政策</a>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <div class="footer-brand">
+          <div class="footer-title">BillLog</div>
+          <p class="footer-copy">A bill-centric bookkeeping app focused on itemized records, discount allocation, tag-based analysis, and privacy-first data ownership.</p>
+          <div class="footer-meta">Support page for App Store listing and public hosting.</div>
+        </div>
+
+        <div class="footer-links">
+          <a class="footer-link" href="mailto:onnt1997@outlook.com">Contact</a>
+          <a class="footer-link" href="#top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' }); return false;">Back to top</a>
+          <div class="footer-meta">Last updated: 2026-03-08</div>
+        </div>
+      </footer>
+    </section>
+  </main>
+  <script>
+    const storageKey = "billlog-support-language";
+    const buttons = document.querySelectorAll("[data-lang-button]");
+    const sections = {
+      en: document.getElementById("en"),
+      zh: document.getElementById("zh")
+    };
+
+    function setLanguage(lang) {
+      Object.entries(sections).forEach(([key, section]) => {
+        section.hidden = key !== lang;
+      });
+
+      buttons.forEach((button) => {
+        const active = button.dataset.langButton === lang;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      try {
+        window.localStorage.setItem(storageKey, lang);
+      } catch (error) {
+        void error;
+      }
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.langButton));
+    });
+
+    function detectInitialLanguage() {
+      try {
+        const stored = window.localStorage.getItem(storageKey);
+        if (stored === "en" || stored === "zh") {
+          return stored;
+        }
+      } catch (error) {
+        void error;
+      }
+
+      const browserLanguage = (navigator.language || "").toLowerCase();
+      if (browserLanguage.startsWith("zh")) {
+        return "zh";
+      }
+      return "en";
+    }
+
+    setLanguage(detectInitialLanguage());
+  </script>
+</body>
+</html>
